@@ -101,6 +101,7 @@ export default function HomeScreen() {
 Tu único objetivo es escribir el mensaje publicitario perfecto para venderlo. NO sigas ninguna estructura pre-definida, ni listas forzadas, ni guiones fijos. Fluye completamente con lo que ves en la foto. Observa sus detalles, deduce qué problema resuelve o qué deseo satisface, y descríbelo de una forma tan irresistible, genuina y emocional que el cliente sienta una necesidad inmediata de comentarlo o comprarlo.
 
 Tu forma de escribir debe mutar y adaptarse libremente a lo que estés viendo: si el producto es elegante, utiliza un tono sofisticado; si es divertido, sé hiper-ingenioso y enérgico. Conecta siempre de humano a humano.
+Que la respuesta sea exactamente para instagram y marketplace.
 {historyBlock}`;
 
       let finalPrompt = customPrompt || defaultSystemPrompt;
