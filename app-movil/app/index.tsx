@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, Stack } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 
@@ -7,10 +10,34 @@ import * as Clipboard from 'expo-clipboard';
 const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copy, setCopy] = useState<string>('');
   const [company, setCompany] = useState<string>('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [customPrompt, setCustomPrompt] = useState<string | null>(null);
+  const [evolutionaryMemoryEnabled, setEvolutionaryMemoryEnabled] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSettings = async () => {
+        try {
+          const savedHistory = await AsyncStorage.getItem('learningHistory');
+          if (savedHistory) setHistory(JSON.parse(savedHistory));
+          
+          const savedPrompt = await AsyncStorage.getItem('customSystemPrompt');
+          if (savedPrompt) setCustomPrompt(savedPrompt);
+          
+          const memoryConf = await AsyncStorage.getItem('evolutionaryMemoryEnabled');
+          if (memoryConf !== null) setEvolutionaryMemoryEnabled(memoryConf === 'true');
+        } catch (e) {
+          console.error('Error loading settings:', e);
+        }
+      };
+      loadSettings();
+    }, [])
+  );
 
   const takePhoto = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -65,20 +92,22 @@ export default function HomeScreen() {
       // Extraemos la porción base64 quitando el prefijo de URI de data
       const base64Data = image.split(',')[1];
       
-      const systemPrompt = `
-Eres un analista y copywriter experto en marketing de redes sociales. Tu tarea es ayudar a vender el producto de la imagen, pero con un enfoque EXTREMADAMENTE HUMANO, empático y cercano. Nada de textos que suenen a "bot" o a vendedor de enciclopedia.
+      const historyBlock = (evolutionaryMemoryEnabled && history.length > 0)
+        ? `\n\n[MEMORIA DE EVOLUCIÓN]\nA continuación, te presento hasta 3 de tus mejores copies generados anteriormente. Analiza su estructura, calidad y tono. Tu objetivo NO es copiar estas muestras repetitivamente, sino EVOLUCIONAR a partir de ellas. Debes darme un resultado AÚN MEJOR, más creativo, orgánico y emocional que estos ejemplos previos, para demostrar que estás aprendiendo:\n${history.map((h, i) => `--- Copy Anterior ${i+1} ---\n${h}`).join('\n\n')}\n[/MEMORIA DE EVOLUCIÓN]\n`
+        : '';
 
-La empresa/marca para la que trabajas es: "${company || 'una marca genial y cercana'}".
-Debes deducir el rubro y la personalidad de esta marca observando el producto y luego actuar como el mejor amigo del cliente ideal. Aprende de la foto para conectar emocionalmente con lo que realmente le importa a quien lo va a comprar.
+      const defaultSystemPrompt = `Eres una mente brillante en ventas, psicología del consumidor y copywriting persuasivo. Vas a analizar visualmente el producto de la imagen que pertenece a la marca '{company}'. 
 
-Sigue esta estructura orgánica:
-1. Título Gancho: Una frase genuina y cercana que atrape (usa uno o dos emojis sutiles).
-2. Beneficios Conversacionales: 2 a 3 viñetas cortísimas explicando de tú a tú por qué este producto funciona o mejora la vida, en lenguaje súper natural.
-3. Call to Action (CTA): Una pregunta o invitación real (ej. "¿Nos cuentas qué te parece en los comentarios?", "Toca el link en nuestra bio si necesitas uno").
-4. Hashtags: 5 hashtags súper relevantes y no genéricos.
+Tu único objetivo es escribir el mensaje publicitario perfecto para venderlo. NO sigas ninguna estructura pre-definida, ni listas forzadas, ni guiones fijos. Fluye completamente con lo que ves en la foto. Observa sus detalles, deduce qué problema resuelve o qué deseo satisface, y descríbelo de una forma tan irresistible, genuina y emocional que el cliente sienta una necesidad inmediata de comentarlo o comprarlo.
 
-Recuerda: Si el texto suena robótico, falso o "muy publicitario", lo estamos haciendo mal. Queremos conectar genuinamente, como si hablaras con alguien en un café recomendándole tu producto favorito.
-`;
+Tu forma de escribir debe mutar y adaptarse libremente a lo que estés viendo: si el producto es elegante, utiliza un tono sofisticado; si es divertido, sé hiper-ingenioso y enérgico. Conecta siempre de humano a humano.
+{historyBlock}`;
+
+      let finalPrompt = customPrompt || defaultSystemPrompt;
+      finalPrompt = finalPrompt.replace('{company}', company || 'una marca genial y cercana');
+      finalPrompt = finalPrompt.replace('{historyBlock}', historyBlock);
+
+      const systemPrompt = finalPrompt;
 
       const payload = {
         contents: [{
@@ -103,6 +132,11 @@ Recuerda: Si el texto suena robótico, falso o "muy publicitario", lo estamos ha
         const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (textResponse) {
           setCopy(textResponse);
+          
+          // Guardar en la memoria de aprendizaje (máximo 3 ejemplos para no saturar el prompt)
+          const newHistory = [textResponse, ...history].slice(0, 3);
+          setHistory(newHistory);
+          AsyncStorage.setItem('learningHistory', JSON.stringify(newHistory)).catch(e => console.error(e));
         } else {
           Alert.alert('Error del Servidor', 'Respuesta de la IA vacía.');
         }
@@ -133,6 +167,15 @@ Recuerda: Si el texto suena robótico, falso o "muy publicitario", lo estamos ha
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Stack.Screen 
+        options={{
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.push('/admin' as any)}>
+              <Text style={{ fontSize: 24, marginRight: 15 }}>⚙️</Text>
+            </TouchableOpacity>
+          ),
+        }} 
+      />
       
       <View style={styles.imageContainer}>
         {image ? (
