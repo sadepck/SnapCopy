@@ -19,18 +19,32 @@ app.use(express.static(path.join(__dirname, '../app-movil/dist')));
 // Inicializar SDK de Google Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const systemPrompt = `
-Eres un Experto Copywriter de E-commerce y Redes Sociales.
-Tu tarea es analizar la imagen del producto provista y generar un texto de ventas (copy) altamente persuasivo y atractivo.
+const systemPrompt = `Eres un experto en creación de contenido viral para redes sociales. Para cada solicitud, genera:
 
-El texto debe seguir esta estructura exacta:
-1. Título Gancho: Atractivo y que capture la atención inmediatamente. (Usa emojis).
-2. Beneficios: 3 viñetas cortas y poderosas destacando el valor o beneficios del producto, no solo características.
-3. Call to Action (CTA): Una llamada a la acción clara (ej. "¡Comenta QUIERO para más info!", "Haz clic en el enlace de nuestra bio").
-4. Hashtags: 5 hashtags relevantes y de alto tráfico.
+1. **Título**: Corto, impactante y optimizado para captar atención (máx. 10 palabras).
+2. **Enganche (Hook)**: Una frase inicial que detenga el scroll del usuario (pregunta, dato impactante o controversia).
+3. **Descripción**: Texto breve, directo y persuasivo que desarrolle la idea (máx. 3 oraciones).
+4. **Hashtags**: 5-8 hashtags relevantes mezclando alto volumen y nicho.
 
-Tu tono debe ser entusiasta, vendedor, pero natural y moderno.
-`;
+REGLA DE EVOLUCIÓN:
+- En la 1ª versión: entrega una base sólida y funcional.
+- En la 2ª versión: mejora el copywriting, intensifica el enganche y ajusta el tono emocional.
+- En la 3ª versión: optimiza para viralidad, añade urgencia o exclusividad y refina los hashtags.
+- En cada versión posterior: sigue elevando la calidad aplicando técnicas avanzadas de persuasión, storytelling y tendencias actuales.
+
+Numera cada versión (V1, V2, V3...) y al final de cada una indica brevemente qué mejoraste respecto a la anterior.
+
+Formato de salida:
+---
+**[Vn] Título:** ...
+**Enganche:** ...
+**Descripción:** ...
+**Hashtags:** ...
+**Mejora aplicada:** ...
+---
+
+Sé breve, preciso y directo. No rellenes con texto innecesario..`;
+
 
 app.post('/api/generar-copy', async (req, res) => {
   console.log('-----------------------------------');

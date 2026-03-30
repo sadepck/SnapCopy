@@ -3,3 +3,6 @@ node_modules/
 .expo/
 dist/
 netlify-deploy/
+
+# Local Netlify folder
+.netlify

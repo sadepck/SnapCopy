@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnapCopy — Autenticación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Encabezado de bienvenida -->
+  <header class="header">
+    <h1 class="logo">SnapCopy</h1>
+    <h2 class="welcome">¡Bienvenido a SnapCopy!</h2>
+    <p class="subtitle">Accede para sincronizar tus portapapeles.</p>
+  </header>
+
+  <!-- Tarjeta principal -->
+  <main class="card">
+
+    <!-- Pestañas -->
+    <div class="tab-row">
+      <button class="tab active" data-tab="login">
+        <span class="tab-text">Entrar</span>
+        <span class="tab-indicator"></span>
+      </button>
+      <button class="tab" data-tab="register">
+        <span class="tab-text">Crear Cuenta</span>
+        <span class="tab-indicator"></span>
+      </button>
+    </div>
+
+    <!-- Formulario: Login -->
+    <form id="form-login" class="form" novalidate>
+      <label class="label" for="login-email">Email</label>
+      <input
+        class="input"
+        id="login-email"
+        type="email"
+        placeholder="tucorreo@ejemplo.com"
+        autocomplete="email"
+        required
+      />
+
+      <label class="label" for="login-password">Contraseña</label>
+      <input
+        class="input"
+        id="login-password"
+        type="password"
+        placeholder="Tu contraseña"
+        autocomplete="current-password"
+        required
+      />
+
+      <div class="forgot-row">
+        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="primary-button">Snap In</button>
+    </form>
+
+    <!-- Formulario: Registro -->
+    <form id="form-register" class="form hidden" novalidate>
+      <label class="label" for="register-name">Nombre Completo</label>
+      <input
+        class="input"
+        id="register-name"
+        type="text"
+        placeholder="Tu nombre"
+        autocomplete="name"
+        required
+      />
+
+      <label class="label" for="register-email">Email</label>
+      <input
+        class="input"
+        id="register-email"
+        type="email"
+        placeholder="tucorreo@ejemplo.com"
+        autocomplete="email"
+        required
+      />
+
+      <label class="label" for="register-password">Contraseña</label>
+      <input
+        class="input"
+        id="register-password"
+        type="password"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password"
+        required
+        minlength="6"
+      />
+
+      <label class="label" for="register-confirm">Confirmar Contraseña</label>
+      <input
+        class="input"
+        id="register-confirm"
+        type="password"
+        placeholder="Repite tu contraseña"
+        autocomplete="new-password"
+        required
+        minlength="6"
+      />
+
+      <button type="submit" class="primary-button">Empezar a Copiar</button>
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
