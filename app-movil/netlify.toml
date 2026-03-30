@@ -2,6 +2,16 @@
   command = "npx expo export --platform web"
   publish = "dist"
 
+[functions]
+  directory = "netlify/functions"
+
+[dev]
+  command = "npx expo start --web --port 8081"
+  targetPort = 8081
+  port = 8888
+  publish = "dist"
+  autoLaunch = false
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
