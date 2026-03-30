@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//z/DEV/Respos/Varias/Benjamin/**)",
+      "Bash(gh repo:*)"
+    ]
+  }
+}
